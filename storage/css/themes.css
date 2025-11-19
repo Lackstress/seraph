@@ -50,12 +50,12 @@
 :root {
     --background-image: url('/images/backgrounds/seraph/homebg.jpg');
     --font-family: 'Ubuntu', sans-serif;
-    --text-color: #fff;
-    --background-color: black;
-    --border-color1: #000000;
-    --border-color2: #ffffff;
-    --hover-color: #1a1818;
-    --text-glow: #000000
+    --text-color: #e0e6ff;
+    --background-color: #0a0a15;
+    --border-color1: #1a1a2e;
+    --border-color2: #4a5a8a;
+    --hover-color: #1e1e35;
+    --text-glow: #6366f1;
 }
 
 :root.theme-azurite {
@@ -166,4 +166,15 @@
     --background-color: rgb(29, 29, 29);
     --hover-color: rgb(40, 37, 37);
     --text-glow: rgb(167, 165, 165);
+}
+
+:root.theme-galaxy {
+    --background-image: url('/images/backgrounds/seraph/homebg.jpg');
+    --font-family: 'Ubuntu', sans-serif;
+    --text-color: #b8c5ff;
+    --background-color: #050510;
+    --border-color1: #1a1a3e;
+    --border-color2: #3d4b8a;
+    --hover-color: #151530;
+    --text-glow: #7c3aed;
 }

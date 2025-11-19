@@ -12,6 +12,44 @@ body {
     -ms-overflow-style: none;
 
     height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+#stars, #stars2, #stars3 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#stars {
+    background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi+P//PwMDAwMjSAAIAAD//wMGAgL+GwVwAAAAAElFTkSuQmCC') repeat;
+    animation: animateStars 100s linear infinite;
+}
+
+#stars2 {
+    background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABhJREFUeNpi+P//vwMDAwMTAwPDfyABEGAAbRkEAWr3JfsAAAAASUVORK5CYII=') repeat;
+    animation: animateStars 150s linear infinite;
+}
+
+#stars3 {
+    background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACBJREFUeNpi/P//fwMDAwMjSAAggL5C/wMZQAAgwAAbGgUBH7hq/gAAAABJRU5ErkJggg==') repeat;
+    animation: animateStars 200s linear infinite;
+}
+
+@keyframes animateStars {
+    from {
+        transform: translateY(0px);
+    }
+    to {
+        transform: translateY(-2000px);
+    }
 }
   
 body::-webkit-scrollbar {
@@ -29,20 +67,23 @@ body::-webkit-scrollbar {
     animation: mainHeaderAnimation 1s ease-in-out forwards;
     background-image: var(--background-image);
     background-size: cover;
+    position: relative;
+    z-index: 1;
 }
   
 h1 {
     font-size: 96px;
     font-family: var(--font-family);
     text-shadow: 0 0 10px var(--text-color),
-                 0 0 10px var(--text-glow),
-                 0 0 30px var(--text-glow),
-                 0 0 40px var(--text-color),
-                 0 0 50px var(--text-glow),
+                 0 0 20px var(--text-glow),
+                 0 0 40px var(--text-glow),
                  0 0 60px var(--text-color),
-                 0 0 70px var(--text-glow),
-                 0 0 80px #000000;
+                 0 0 80px var(--text-glow),
+                 0 0 100px var(--text-color),
+                 0 0 120px var(--text-glow),
+                 0 0 140px #000000;
     margin-bottom: 0px;
+    animation: pulse 3s ease-in-out infinite;
 }
   
 h2 {
@@ -96,10 +137,25 @@ a {
     padding-left: 20px;
     padding-right: 20px;
     
-    transition: background-color 0.15s ease-in-out;
+    transition: all 0.3s ease-in-out;
     border: 3px solid var(--border-color2);
     border-radius: 16px;
     position: relative;
+    
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.gamesbutton:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.gamesbutton:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.gamesbutton:nth-child(3) {
+    animation-delay: 1s;
 }
   
 .gamesbutton img {
@@ -107,6 +163,13 @@ a {
     height: auto;
     display: block;
     margin: 0 auto;
+    filter: drop-shadow(0 0 8px var(--text-glow));
+    transition: all 0.3s ease-in-out;
+}
+
+.gamesbutton:hover img {
+    filter: drop-shadow(0 0 15px var(--text-glow)) brightness(1.2);
+    transform: scale(1.1);
 }
 
 .gamesbutton-link {
@@ -117,7 +180,12 @@ a {
 
 .gamesbutton:hover {
     background-color: var(--hover-color); 
-    transition: background-color 0.1s ease-in-out; 
+    transition: all 0.3s ease-in-out;
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 20px var(--text-glow),
+                0 0 40px var(--text-glow),
+                0 10px 30px rgba(0, 0, 0, 0.5);
+    animation-play-state: paused;
 }
   
 .button-text {
@@ -174,6 +242,8 @@ a {
     z-index: 1001;
     text-align: center;
     flex-direction: column;
+    box-shadow: 0 0 30px var(--text-glow),
+                0 0 60px var(--text-glow);
 }
 
 #updPopup h2 {
@@ -190,11 +260,14 @@ a {
     font-family: var(--font-family);
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
 
 #updConfirm:hover {
     background-color: var(--hover-color); 
-    transition: background-color 0.1s ease-in-out; 
+    transition: all 0.3s ease-in-out;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--text-glow);
 }
 
 #updContent {
@@ -237,6 +310,50 @@ a {
     }
     100% {
         transform: translateX(0%);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.02);
+    }
+}
+
+@keyframes floatRotate {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-12px) rotate(2deg);
+    }
+    66% {
+        transform: translateY(-8px) rotate(-2deg);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--border-color2),
+                    0 0 10px var(--border-color2),
+                    0 0 15px var(--text-glow);
+    }
+    50% {
+        box-shadow: 0 0 10px var(--border-color2),
+                    0 0 20px var(--border-color2),
+                    0 0 30px var(--text-glow),
+                    0 0 40px var(--text-glow);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
     }
 }
   

@@ -35,6 +35,9 @@
     --background-image: url('/images/backgrounds/ghostly/appsbg.jpg');
     --hover-color: #d2c4c4;
 }
+:root.theme-galaxy {
+    --background-image: url('/images/backgrounds/seraph/appsbg.jpg');
+}
 
 html {
     scroll-behavior: smooth;
@@ -71,13 +74,13 @@ h1, h2 {
 h1 {
     font-size: 48px;
     text-shadow: 0 0 10px var(--text-color),
-                 0 0 10px var(--text-glow),
-                 0 0 30px var(--text-glow),
-                 0 0 40px var(--text-color),
-                 0 0 50px var(--text-glow),
+                 0 0 20px var(--text-glow),
+                 0 0 40px var(--text-glow),
                  0 0 60px var(--text-color),
-                 0 0 70px var(--text-glow),
-                 0 0 80px #000000;
+                 0 0 80px var(--text-glow),
+                 0 0 100px var(--text-color),
+                 0 0 120px var(--text-glow),
+                 0 0 140px #000000;
 }
 
 .button {
@@ -106,12 +109,16 @@ h1 {
     border: 3.2px solid var(--border-color2);
     border-radius: 16px;
 
-    transition: border 0.04s ease-in;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
 }
 
 .button:hover {
     background-color: var(--background-color);
     border: 3.2px solid var(--hover-color);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px var(--text-glow),
+                0 5px 15px rgba(0, 0, 0, 0.4);
 }
 
 .button h2 {
