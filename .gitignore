@@ -1,1 +1,4 @@
 .DS_Store
+apps/aichat/config.js
+apps/aichat/.env
+node_modules/

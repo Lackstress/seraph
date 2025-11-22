@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sampulator | Seraph</title>
+    <link rel="shortcut icon" href="../../images/ico.ico" type="image/x-icon">
+    <script src="../../storage/js/cloak.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .container {
+            text-align: center;
+            color: #fff;
+            padding: 40px;
+            max-width: 600px;
+        }
+        .container h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #4a9eff;
+        }
+        .container p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #ccc;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #4a9eff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .button:hover {
+            background: #3a8eef;
+            transform: translateY(-2px);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+        .error-message {
+            display: none;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #444;
+        }
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container" id="iframeContainer">
+        <iframe src="https://sampulator.com/" allowfullscreen id="sampulatorFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"></iframe>
+    </div>
+    <div class="container" id="fallbackContainer" style="display: none;">
+        <h1>🎵 Sampulator</h1>
+        <p>Sampulator cannot be embedded due to security restrictions. Click the button below to open it in a new window.</p>
+        <button class="button" onclick="openSampulator()">Open Sampulator</button>
+        <div class="error-message" id="errorMessage">
+            <p><strong>Note:</strong> If the iframe is blocked, Sampulator will open in a new tab for the best experience.</p>
+        </div>
+    </div>
+
+    <script>
+        const iframe = document.getElementById('sampulatorFrame');
+        const iframeContainer = document.getElementById('iframeContainer');
+        const fallbackContainer = document.getElementById('fallbackContainer');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Check if iframe loaded successfully
+        let loadTimeout = setTimeout(() => {
+            // If iframe doesn't load within 5 seconds, show fallback
+            checkIframeLoad();
+        }, 5000);
+
+        iframe.addEventListener('load', () => {
+            clearTimeout(loadTimeout);
+            // Check if iframe actually loaded content
+            try {
+                // Try to access iframe content (will fail if X-Frame-Options blocks it)
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (!iframeDoc || iframeDoc.body.innerHTML.trim() === '') {
+                    showFallback();
+                }
+            } catch (e) {
+                // Cross-origin error means iframe loaded but we can't access it
+                // This is actually good - it means the iframe is working
+                console.log('Iframe loaded (cross-origin, expected)');
+            }
+        });
+
+        iframe.addEventListener('error', () => {
+            clearTimeout(loadTimeout);
+            showFallback();
+        });
+
+        function checkIframeLoad() {
+            try {
+                // Try to access iframe - if we can't, it might still be loading or blocked
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim() !== '') {
+                    // Iframe has content, it's working
+                    return;
+                }
+            } catch (e) {
+                // Cross-origin - this is fine, iframe is working
+                return;
+            }
+            // If we get here and it's been 5 seconds, show fallback
+            showFallback();
+        }
+
+        function showFallback() {
+            iframeContainer.style.display = 'none';
+            fallbackContainer.style.display = 'block';
+            errorMessage.classList.add('show');
+        }
+
+        function openSampulator() {
+            window.open('https://sampulator.com/', '_blank', 'noopener,noreferrer');
+        }
+
+        // Also try direct navigation after a delay if iframe fails
+        window.addEventListener('message', (event) => {
+            // Listen for messages from iframe
+            if (event.origin === 'https://sampulator.com') {
+                clearTimeout(loadTimeout);
+            }
+        }, false);
+    </script>
+</body>
+</html>
+
