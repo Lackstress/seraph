@@ -360,9 +360,18 @@
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <h1>AI Chat</h1>
-                <div class="header-subtitle">Powered by OpenRouter • Image support enabled</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #ab68ff, #19c37d); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 style="font-size: 15px;">Seraph Assistant</h1>
+                    <div class="header-subtitle">GPT-4.1 Nano • Gemini 2.0 Flash • Vision Enabled</div>
+                </div>
             </div>
         </div>
         <div class="chat-container" id="chatContainer">
@@ -431,22 +440,25 @@
             }
         }
         
-        // OpenRouter models - prioritized by reliability and speed
-        // Using more competent models that handle images well
+        // OpenRouter models - prioritized by quality then cost
+        // Paid models first, free fallback only when credits exhausted
         const MULTIMODAL_MODELS = [
-            'google/gemini-2.0-flash-lite-001',  // Fast and reliable
-            'x-ai/grok-4.1-fast',                 // Good multimodal support
-            'mistralai/mistral-small-3.1-24b-instruct',  // Reliable
-            'google/gemma-3-27b-it:free',        // Free fallback
-            'x-ai/grok-4.1-fast:free'            // Free fallback
+            'openai/gpt-4.1-nano',               // Best: $0.10/M in, $0.40/M out, 1M context
+            'google/gemini-2.0-flash-001',       // Fast: $0.10/M in, $0.40/M out
+            'google/gemini-2.5-flash-lite',      // Cheap: $0.10/M in, $0.40/M out
+            'google/gemma-3-27b-it:free'         // Free fallback only
         ];
         
         const TEXT_MODELS = [
-            'x-ai/grok-4.1-fast',                // Fast and reliable
-            'google/gemini-2.0-flash-lite-001',   // Fast
-            'google/gemma-3-27b-it:free',        // Free fallback
-            'x-ai/grok-4.1-fast:free'            // Free fallback
+            'openai/gpt-4.1-nano',               // Best: $0.10/M in, $0.40/M out, 1M context
+            'google/gemini-2.0-flash-001',       // Fast: $0.10/M in, $0.40/M out
+            'google/gemini-2.5-flash-lite',      // Cheap: $0.10/M in, $0.40/M out
+            'google/gemma-3-27b-it:free'         // Free fallback only
         ];
+        
+        // Message history for context (up to 4 messages)
+        let messageHistory = [];
+        const MAX_HISTORY = 4;
         
         let selectedImages = [];
         const messageInput = document.getElementById('messageInput');
@@ -586,8 +598,9 @@
             sendButton.disabled = true;
             const imagesToSend = [...selectedImages];
 
-            // Add user message to chat
+            // Add user message to chat and history
             addMessageToChat('user', message, imagesToSend);
+            addToHistory('user', message, imagesToSend);
 
             // Clear input
             messageInput.value = '';
@@ -625,6 +638,7 @@
                 
                 removeLoadingIndicator(loadingId);
                 addMessageToChat('assistant', response);
+                addToHistory('assistant', response);
 
             } catch (error) {
                 console.error('Error:', error);
@@ -689,6 +703,37 @@
             throw lastError || new Error('Request failed after all retries');
         }
 
+        // Add message to history
+        function addToHistory(role, content, images = []) {
+            messageHistory.push({ role, content, images });
+            if (messageHistory.length > MAX_HISTORY) {
+                messageHistory.shift();
+            }
+        }
+        
+        // Build messages array with history
+        function buildMessagesWithHistory(currentContent, systemPrompt) {
+            const messages = [
+                { role: 'system', content: systemPrompt }
+            ];
+            
+            // Add history (text only for context)
+            messageHistory.forEach(msg => {
+                messages.push({
+                    role: msg.role,
+                    content: msg.content || '[Image attached]'
+                });
+            });
+            
+            // Add current message
+            messages.push({
+                role: 'user',
+                content: currentContent
+            });
+            
+            return messages;
+        }
+
         async function callMultimodalModel(textMessage, imageBase64Array) {
             let lastError = null;
             
@@ -712,18 +757,24 @@
                         });
                     });
 
+                    // Build messages with history context
+                    const systemPrompt = 'You are a helpful AI assistant. Provide clear, concise, and helpful responses. When images are provided, analyze them in the context of the user\'s question.';
+                    const messages = [{ role: 'system', content: systemPrompt }];
+                    
+                    // Add history
+                    messageHistory.forEach(msg => {
+                        messages.push({
+                            role: msg.role,
+                            content: msg.content || '[Image attached]'
+                        });
+                    });
+                    
+                    // Add current message with images
+                    messages.push({ role: 'user', content: content });
+
                     const requestBody = {
                         model: model,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'You are a helpful AI assistant. Provide clear, concise, and helpful responses. When images are provided, analyze them in the context of the user\'s question.'
-                            },
-                            {
-                                role: 'user',
-                                content: content
-                            }
-                        ],
+                        messages: messages,
                         max_tokens: 8192,
                         temperature: 0.7
                     };
@@ -817,18 +868,12 @@
             
             for (const model of TEXT_MODELS) {
                 try {
+                    const systemPrompt = 'You are a helpful AI assistant. Provide clear, concise, and helpful responses.';
+                    const messages = buildMessagesWithHistory(message, systemPrompt);
+                    
                     const requestBody = {
                         model: model,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'You are a helpful AI assistant. Provide clear, concise, and helpful responses.'
-                            },
-                            {
-                                role: 'user',
-                                content: message
-                            }
-                        ],
+                        messages: messages,
                         max_tokens: 8192,
                         temperature: 0.7
                     };
