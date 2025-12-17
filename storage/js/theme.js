@@ -1,11 +1,9 @@
 function applyStoredTheme() {
-    const storedTheme = localStorage.getItem('selectedTheme');
-    if (storedTheme) {
-        document.documentElement.className = `theme-${storedTheme}`;
+    const storedTheme = localStorage.getItem('selectedTheme') || 'seraph'; // Default to 'seraph' theme
+    document.documentElement.className = `theme-${storedTheme}`;
 
-        if (storedTheme === 'custom') {
-            applyCustomThemeStyles();
-        }
+    if (storedTheme === 'custom') {
+        applyCustomThemeStyles();
     }
 }
 
